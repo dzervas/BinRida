@@ -122,6 +122,9 @@ class ConsoleTextBrowser(QTextBrowser):
 		menu.exec(event.globalPos())
 
 	def appendHtml(self, html: str, sync: bool = False):
+		# TODO: Fix the throttler
+		sync = True
+
 		if not isinstance(html, str):
 			alert(f"appendHtml called with non-string argument: {str(html)}")
 			return
@@ -134,6 +137,7 @@ class ConsoleTextBrowser(QTextBrowser):
 			if not self._throttled_update:
 				self._throttled_update = asyncio.create_task(self._appendHtml_throttler())
 		else:
+			self.moveCursor(QTextCursor.End)
 			self.insertHtml(f"<style>{CSS}</style><br/>{html}")
 
 			self._last_update = time.time()

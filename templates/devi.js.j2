@@ -7,7 +7,7 @@
 {{ function_header(bv, func) }}
 const myModule = Process.getModuleByName("{{ bv.file.original_filename.split("/") | last }}");
 const symbolAddress = func_{{ func.start }}_ptr;
-const debug = "True";
+const debug = "False";
 
 if (symbolAddress === undefined) {
 	console.log("[!] Unable to finde symbol " + symbolInput)

@@ -21,11 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+import asyncio
 import binaryninja as bn
 import binaryninjaui as ui
+from threading import Thread
 from .actions import *
 from .console import CONSOLE
 from .settings import SETTINGS
+from .log import *
 
 bn.PluginCommand.register("Frinja\\Settings", "Set up Frinja to your liking", SETTINGS.show)
 bn.PluginCommand.register("Frinja\\Help", "Show the project readme", show_help)
@@ -43,11 +46,23 @@ except ImportError:
 	warn("devi plugin not found, disabling devi support")
 	pass
 
-try:
-	import Vector35_snippets
-	from .snippets import *
-	info("snippets plugin found, enabling snippets support")
-except ImportError:
-	info("snippets plugin not found, disabling snippets support")
+# try:
+# 	import Vector35_snippets
+# 	from .snippets import *
+# 	info("snippets plugin found, enabling snippets support")
+# except ImportError:
+# 	info("snippets plugin not found, disabling snippets support")
 
 ui.GlobalArea.addWidget(lambda _: CONSOLE)
+
+# Create async event loop in a thread if not already created
+try:
+	asyncio.get_event_loop()
+except RuntimeError:
+	log("Creating new event loop")
+
+	def run_loop():
+		asyncio.set_event_loop(asyncio.new_event_loop())
+		asyncio.get_event_loop().run_forever()
+
+	Thread(target=run_loop, daemon=True).start()
