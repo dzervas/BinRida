@@ -14,7 +14,7 @@ const func_{{ func.start }}_ptr = ptr(func_{{ func.start }}_module.add({{ "%#x" 
 
 	{%- if type == "char*" -%}
 		{{ var }}.readCString()
-	{%- elif type == "wchar_t*" -%}
+	{%- elif type == "wchar16*" -%}
 		{{ var }}.readUtf16String()
 	{%- elif type == "int" -%}
 		{{ var }}.readInt()
@@ -28,7 +28,7 @@ const func_{{ func.start }}_ptr = ptr(func_{{ func.start }}_module.add({{ "%#x" 
 		{{ var }}.readU8()
 	{%- elif type == "char" -%}
 		{{ var }}.readU8()
-	{%- elif type == "wchar_t" -%}
+	{%- elif type == "wchar16" -%}
 		{{ var }}.readU16()
 	{%- elif type == "int8_t" -%}
 		{{ var }}.toInt32()
@@ -60,7 +60,7 @@ const func_{{ func.start }}_ptr = ptr(func_{{ func.start }}_module.add({{ "%#x" 
 		{{ var }}.readU8()
 	{%- elif type == "char*" -%}
 		{{ var }}.readU8()
-	{%- elif type == "wchar_t*" -%}
+	{%- elif type == "wchar16*" -%}
 		{{ var }}.readU16()
 	{%- elif type == "int8_t*" -%}
 		{{ var }}.readS8()
@@ -99,7 +99,7 @@ const func_{{ func.start }}_ptr = ptr(func_{{ func.start }}_module.add({{ "%#x" 
 		"int64_t": "int64",
 		"uint64_t": "uint64",
 		"char": "char",
-		"wchar_t": "uint16",
+		"wchar16": "uint16",
 		"void": "void",
 		"float": "float",
 		"double": "double",

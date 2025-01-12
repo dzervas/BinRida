@@ -1,5 +1,17 @@
 {%- from "_macros.js.j2" import argparse, function_header, type_translate -%}
 
+setTimeout(function() {
+console.log("Waiting for module to get loaded {{ bv.file.original_filename.split("/") | last }}...");
+while (true) {
+	try {
+		Module.ensureInitialized("{{ bv.file.original_filename.split("/") | last }}");
+		console.log("Module {{ bv.file.original_filename.split("/") | last }} loaded!");
+		break;
+	} catch (e) {
+		continue;
+	}
+}
+
 {%- for func in targets -%}
 {{ function_header(bv, func) }}
 {% if "@replace" in func.comment -%}
@@ -10,28 +22,31 @@ Interceptor.replace(func_{{ func.start }}_ptr, new NativeCallback(func_{{ func.s
 {% elif "@attach" in func.comment -%}
 {% else -%}
 Interceptor.attach(func_{{ func.start }}_ptr, {
-	onEnter: function(args) {
+	onEnter(args) {
+		this.args = [];
+		{% for param in func.parameter_vars -%}
+			{%- set index = loop.index0 | string -%}
+			const {{ param.name }} = {{- argparse(param, "args[" + index + "]") -}};
+			this.args[{{ index }}] = args[{{ index }}];
+			this.{{ param.name }} = {{ param.name }};
+		{% endfor %}
+
 		send({
 			"event": "call",
 			"function": "{{ func.name }}",
 			"address": {{ "%#x" % func.start }},
 			"args": {
 				{%- for param in func.parameter_vars -%}
-					{%- set index = loop.index0 | string -%}
-					{{ param.name }}: {{- argparse(param, "args[" + index + "]") -}},
+					{{ param.name }}: {{- param.name -}},
 				{%- endfor -%}
 			}
 		});
 
 		{%- if "@prehook" in func.comment %}
-		{% for param in func.parameter_vars %}
-			{%- set index = loop.index0 | string -%}
-			const {{ param.name }} = {{- argparse(param, "args[" + index + "]") -}};
-		{% endfor %}
 		{{ func.comment.split("@prehook:")[1].split("\n")[0].strip() }};
 		{%- endif %}
 	},
-	onLeave: function(retval) {
+	onLeave(retval) {
 		{%- if "@ret" in func.comment -%}
 		{%- set new_retval = func.comment.split("@ret:")[1].split("\n")[0].strip() -%}
 		{%- endif %}
@@ -55,3 +70,5 @@ Interceptor.attach(func_{{ func.start }}_ptr, {
 });
 {% endif -%}
 {% endfor %}
+
+}, 0);
