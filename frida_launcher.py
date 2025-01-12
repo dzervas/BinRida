@@ -135,7 +135,7 @@ class FridaLauncher(bn.BackgroundTaskThread):
 		# Find (or create) the process
 		if SETTINGS.exec_action == ExecutionAction.SPAWN:
 			# TODO: Allow tinkering with the env, stdio and cwd
-			self.pid = SETTINGS.device.spawn(SETTINGS.file_target, SETTINGS.cmdline.split(" "))
+			self.pid = SETTINGS.device.spawn(SETTINGS.file_target, argv=[SETTINGS.file_target] + SETTINGS.cmdline.split(" "), cwd=SETTINGS.workdir)
 			info(f"Spawned {SETTINGS.file_target} with arguments `{SETTINGS.cmdline}` that got PID {self.pid}")
 		elif SETTINGS.exec_action == ExecutionAction.ATTACH_NAME:
 			self.pid = SETTINGS.attach_name

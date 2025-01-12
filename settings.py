@@ -23,6 +23,7 @@ class Settings():
 	attach_pid: Optional[int] = None
 	file_target: str = ""
 	cmdline: str = ""
+	workdir: Optional[str] = None
 	console_history: list[str] = []
 
 	# TODO: P2P functionality
@@ -45,6 +46,7 @@ class Settings():
 		pid_ui = bn.ChoiceField("PID", [])
 		file_target_ui = bn.TextLineField("File target", self.file_target if self.file_target != "" else bv.file.original_filename)
 		cmdline_ui = bn.TextLineField("Command line arguments", self.cmdline)
+		workdir_ui = bn.TextLineField("Working directory", self.workdir)
 
 		form = [
 			device_ui,
@@ -62,6 +64,7 @@ class Settings():
 			bn.LabelField("Spawning Settings"),
 			file_target_ui,
 			cmdline_ui,
+			workdir_ui,
 		]
 
 		device = self.device if self.device is not None else devices[0]
@@ -86,6 +89,7 @@ class Settings():
 		self.attach_pid = int(pid_ui.choices[pid_ui.result].split("(")[1][:-1]) if pid_ui.result is not None and pid_ui.choices else 0
 		self.file_target = file_target_ui.result
 		self.cmdline = cmdline_ui.result
+		self.workdir = None if workdir_ui.result == "" else workdir_ui.result
 
 		self.store(bv)
 
@@ -95,6 +99,7 @@ class Settings():
 		bv.store_metadata("frinja_attach_name", self.attach_name)
 		bv.store_metadata("frinja_attach_pid", self.attach_pid)
 		bv.store_metadata("frinja_cmdline", self.cmdline)
+		bv.store_metadata("frinja_workdir", self.workdir)
 		bv.store_metadata("frinja_file_target", self.file_target)
 		bv.store_metadata("frinja_console_history", self.console_history)
 
@@ -103,6 +108,7 @@ class Settings():
 			self.device = frida.get_device(bv.query_metadata("frinja_device"))
 			self.exec_action = ExecutionAction(bv.query_metadata("frinja_exec_action"))
 			self.cmdline = bv.query_metadata("frinja_cmdline")
+			self.workdir = bv.query_metadata("frinja_workdir")
 			self.attach_name = bv.query_metadata("frinja_attach_name")
 			self.attach_pid = bv.query_metadata("frinja_attach_pid")
 			self.file_target = bv.query_metadata("frinja_file_target")
